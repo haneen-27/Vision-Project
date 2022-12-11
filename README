@@ -1,0 +1,16 @@
+****************In order to run the Autonomous mode in the Simulator*********************
+
+The projects zip file contains the python code , jupiter notebook and the environment we activate to launch the code on 
+
+Steps :
+#1: Open Linux_Roverism 
+#2: Click on  Roverismx86_64 
+#2: click on Ok
+#3: Unzip Vision Project File 
+#4: click on vision project folder 
+#5: click on code folder 
+#6: open in terminal 
+#7: in terminal , type : 1. conda activate vision-project
+                         2. python drive_rover.py
+#8: click on Autonomous mode from the Roverismx86_64 tab 
+

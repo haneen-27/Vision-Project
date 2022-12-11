@@ -1,0 +1,13 @@
+name: vision-project
+channels:
+    - https://conda.anaconda.org/menpo
+    - conda-forge
+dependencies:
+    - python==3.7
+    - numpy
+    - eventlet
+    - pillow
+    - flask
+    - matplotlib
+    - python-engineio==3.11.2
+    - python-socketio==4.6.1
