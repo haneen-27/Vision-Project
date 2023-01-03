@@ -24,7 +24,7 @@ def decision_step(Rover):
         if Rover.mode[-1] == 'forward':
             # if sample rock on sight (in the left side only) and relatively close
             if Rover.samples_angles is not None and np.mean(Rover.samples_angles) > -0.2 and np.min(Rover.samples_dists) < 30:
-                Rover.steer = np.clip(np.mean(Rover.samples_angles * 180 / np.pi), -15, 15)
+                #Rover.steer = np.clip(np.mean(Rover.samples_angles * 180 / np.pi), -15, 15)
                 Rover.rock_time = Rover.total_time
                 Rover.mode.append('rock')
 
@@ -93,7 +93,7 @@ def decision_step(Rover):
                 Rover.mode.pop() # no rock in sight anymore. Go back to previous state
 
             # if 20 sec passed gives up and goes back to previous mode
-            if Rover.total_time - Rover.rock_time > 60 :
+            if Rover.total_time - Rover.rock_time > 40 :
                 Rover.mode.pop()  # returns to previous mode
 
             # if close to the sample stop

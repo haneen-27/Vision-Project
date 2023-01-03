@@ -77,7 +77,7 @@ class RoverState():
         #in the start up code the stop forward value was 50
         #by observing the simulator we found that it is better to increase the 
         # value of the threshold that intiates the stopping
-        self.stop_forward = 100 # Threshold to initiate stopping
+        self.stop_forward =200 # Threshold to initiate stopping
         self.go_forward = 500 # Threshold to go forward again
 
         #speed in startup code was very slow so we increased it 
