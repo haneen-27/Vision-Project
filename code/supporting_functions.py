@@ -44,7 +44,7 @@ def update_rover(Rover, data):
       # The current steering angle
       Rover.steer = convert_to_float(data["steering_angle"])
       # Near sample flag
-      Rover.near_sample = np.int(data["near_sample"])
+      Rover.near_sample = np.int(data["near_sample"]) 
       # Picking up flag
       Rover.picking_up = np.int(data["picking_up"])
       # Update number of rocks collected
