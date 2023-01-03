@@ -55,7 +55,8 @@ class RoverState():
         self.brake = 0 # Current brake value
         self.nav_angles = None  # Angles of navigable terrain pixels
         self.nav_dists = None # Distances of navigable terrain pixels
-                
+        self.samples_angles = None  # Angles of rock sample pixels
+        self.samples_dists = None  # Distances of rock sample pixels
         self.ground_truth = ground_truth_3d # Ground truth worldmap
         self.mode = ['forward'] # Current mode (can be forward or stop)
 
@@ -70,12 +71,12 @@ class RoverState():
         #in the start up code the stop forward value was 50
         #by observing the simulator we found that it is better to increase the 
         # value of the threshold that intiates the stopping
-        self.stop_forward = 100 # Threshold to initiate stopping
+        self.stop_forward = 200 # Threshold to initiate stopping
         self.go_forward = 500 # Threshold to go forward again
 
         #speed in startup code was very slow so we increased it 
         #from 2 to 3 
-        self.max_vel = 3 # Maximum velocity (meters/second)
+        self.max_vel = 4 # Maximum velocity (meters/second)
         # Image output from perception step
         # Update this image to display your intermediate analysis steps
         # on screen in autonomous mode
@@ -113,7 +114,7 @@ def telemetry(sid, data):
         fps = frame_counter
         frame_counter = 0
         second_counter = time.time()
-    print("Current FPS: {}".format(fps))
+    # print("Current FPS: {}".format(fps))
 
     if data:
         global Rover

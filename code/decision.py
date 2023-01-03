@@ -7,9 +7,10 @@ def decision_step(Rover):
     # Implement conditionals to decide what to do given perception data
     # Here you're all set up with some basic functionality but you'll need to
     # improve on this decision tree to do a good job of navigating autonomously!
-
     # offset in rad used to hug the left wall.
+
     offset = 0
+
     # Only apply left wall hugging when out of the starting point (after 10s)
     # to avoid getting stuck in a circle
     if Rover.total_time > 10:
@@ -22,9 +23,14 @@ def decision_step(Rover):
     if Rover.nav_angles is not None:
         # Check for Rover.mode status. I made Rover.mode a stack
         if Rover.mode[-1] == 'forward':
-            
+            # if sample rock on sight (in the left side only) and relatively close
+            if Rover.samples_angles is not None and np.mean(Rover.samples_angles) > -0.2 and np.min(Rover.samples_dists) < 30:
+                #Rover.steer = np.clip(np.mean(Rover.samples_angles * 180 / np.pi), -15, 15)
+                Rover.rock_time = Rover.total_time
+                Rover.mode.append('rock')
+
             # Check the extent of navigable terrain
-            if len(Rover.nav_angles) >= Rover.stop_forward:
+            elif len(Rover.nav_angles) >= Rover.stop_forward:
                 # If mode is forward, navigable terrain looks good
                 # Except for start, if stopped means stuck.
                 # Alternates between stuck and forward modes
@@ -49,7 +55,7 @@ def decision_step(Rover):
                 Rover.steer = np.clip(np.mean((Rover.nav_angles+offset) * 180 / np.pi), -15, 15)
 
             # If there's a lack of navigable terrain pixels then go to 'stop' mode
-            elif len(Rover.nav_angles) < Rover.stop_forward or Rover.vel <= 0:
+            elif (len(Rover.nav_angles) < Rover.stop_forward and len(Rover.nav_angles) >= 100) or Rover.vel <= 0:
                     # Set mode to "stop" and hit the brakes!
                     Rover.throttle = 0
                     # Set brake to stored brake value
@@ -107,12 +113,52 @@ def decision_step(Rover):
                     Rover.steer = np.clip(np.mean(Rover.nav_angles * 180 / np.pi) + offset, -15, 15)
                     Rover.mode.pop()  # returns to previous mode       
 
+        elif Rover.mode[-1] == 'rock':
+            # Steer torwards the sample
+            mean = np.mean(Rover.samples_angles * 180 / np.pi)
+            if not np.isnan(mean):
+                Rover.steer = np.clip(mean, -15, 15)
+            else:
+                Rover.mode.pop() # no rock in sight anymore. Go back to previous state
+
+            # if 20 sec passed gives up and goes back to previous mode
+            if Rover.total_time - Rover.rock_time > 25:
+                Rover.mode.pop()  # returns to previous mode
+
+            # if close to the sample stop
+            if Rover.near_sample:
+                # Set mode to "stop" and hit the brakes!
+                Rover.throttle = 0
+                # Set brake to stored brake value
+                Rover.brake = Rover.brake_set
+
+            # if got stuck go to stuck mode
+            elif Rover.vel <= 0 and Rover.total_time - Rover.stuck_time > 10:
+                Rover.throttle = 0
+                # Set brake to stored brake value
+                Rover.brake = Rover.brake_set
+                Rover.steer = 0
+                Rover.mode.append('stuck')
+                Rover.stuck_time = Rover.total_time
+            else:
+                # Approach slowly
+                slow_speed = Rover.max_vel / 4
+                if Rover.vel < slow_speed:
+                    Rover.throttle = 0.2
+                    Rover.brake = 0
+                else:  # Else break
+                    Rover.throttle = 0
+                    Rover.brake = Rover.brake_set
     # Just to make the rover do something 
     # even if no modifications have been made to the code
     else:
         Rover.throttle = Rover.throttle_set
         Rover.steer = 0
         Rover.brake = 0
-    
+        
+    # If in a state where want to pickup a rock send pickup command
+    if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
+        Rover.send_pickup = True
+
     return Rover
 
