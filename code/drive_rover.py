@@ -32,7 +32,8 @@ app = Flask(__name__)
 ground_truth = mpimg.imread('../calibration_images/map_bw.png')
 # This next line creates arrays of zeros in the red and blue channels
 # and puts the map into the green channel.  This is why the underlying 
-# map output looks green in the display image
+# map output looks green in the display image                Rover.steer = np.clip(np.mean((Rover.nav_angles+offset) * 180 / np.pi), -15, 15)
+
 ground_truth_3d = np.dstack((ground_truth*0, ground_truth*255, ground_truth*0)).astype(np.float)
 
 # Define RoverState() class to retain rover state parameters
@@ -55,8 +56,13 @@ class RoverState():
         self.brake = 0 # Current brake value
         self.nav_angles = None  # Angles of navigable terrain pixels
         self.nav_dists = None # Distances of navigable terrain pixels
+        
+        # both variables used in to_polar_coords to get
+        # rocks into a polar coordinate system
+        #el hyb2a used fl descision 3ashan a control el steering bta3 el rover 
         self.samples_angles = None  # Angles of rock sample pixels
         self.samples_dists = None  # Distances of rock sample pixels
+        
         self.ground_truth = ground_truth_3d # Ground truth worldmap
         self.mode = ['forward'] # Current mode (can be forward or stop)
 
@@ -114,7 +120,7 @@ def telemetry(sid, data):
         fps = frame_counter
         frame_counter = 0
         second_counter = time.time()
-    # print("Current FPS: {}".format(fps))
+    print("Current FPS: {}".format(fps))
 
     if data:
         global Rover
@@ -137,7 +143,6 @@ def telemetry(sid, data):
             # back in respose to the current telemetry data.
 
             # If in a state where want to pickup a rock send pickup command
-            
             if Rover.send_pickup and not Rover.picking_up:
                 send_pickup()
                 # Reset Rover flags
@@ -146,7 +151,7 @@ def telemetry(sid, data):
                 # Send commands to the rover!
                 commands = (Rover.throttle, Rover.brake, Rover.steer)
                 send_control(commands, out_image_string1, out_image_string2)
-            
+
         # In case of invalid telemetry, send null commands
         else:
 
@@ -190,7 +195,6 @@ def send_control(commands, image_string1, image_string2):
         skip_sid=True)
     eventlet.sleep(0)
 # Define a function to send the "pickup" command 
-
 def send_pickup():
     print("Picking up")
     pickup = {}
@@ -199,7 +203,6 @@ def send_pickup():
         pickup,
         skip_sid=True)
     eventlet.sleep(0)
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Remote Driving')
     parser.add_argument(

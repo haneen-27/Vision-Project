@@ -117,7 +117,7 @@ def create_output_images(Rover):
       bad_nav_pix = np.float(len(((plotmap[:,:,2] > 0) & (Rover.ground_truth[:,:,1] == 0)).nonzero()[0]))
       # Grab the total number of map pixels
       tot_map_pix = np.float(len((Rover.ground_truth[:,:,1].nonzero()[0])))
-      # Calculate the percentage of ground truth map that has been successfully found 
+      # Calculate the percentage of ground truth map that has been successfully found
       perc_mapped = round(100*good_nav_pix/tot_map_pix, 1)
       # Calculate the number of good map pixel detections divided by total pixels 
       # found to be navigable terrain
@@ -142,6 +142,11 @@ def create_output_images(Rover):
                   cv2.FONT_HERSHEY_COMPLEX, 0.4, (255, 255, 255), 1)
       cv2.putText(map_add, "State: " + str(Rover.mode[-1]), (0, 100),
                   cv2.FONT_HERSHEY_COMPLEX, 0.4, (255, 255, 255), 1)
+      cv2.putText(map_add, "total nav pix: " + str(tot_nav_pix), (0, 115),
+                  cv2.FONT_HERSHEY_COMPLEX, 0.4, (255, 255, 255), 1)
+      cv2.putText(map_add, "good nav pix: " + str(good_nav_pix), (0, 130),
+                  cv2.FONT_HERSHEY_COMPLEX, 0.4, (255, 255, 255), 1)
+                  
       # Convert map and vision image to base64 strings for sending to server
       pil_img = Image.fromarray(map_add.astype(np.uint8))
       buff = BytesIO()

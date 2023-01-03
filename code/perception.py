@@ -212,7 +212,7 @@ def perception_step(Rover):
     dist, angles = to_polar_coords(xpix_navigable, ypix_navigable)
     Rover.nav_dists = dist
     Rover.nav_angles = angles
-         # Same for rock samples
+        # Same for rock samples
     dist, angles = to_polar_coords(xpix_rocks, ypix_rocks)
     Rover.samples_dists = dist
     Rover.samples_angles = angles
