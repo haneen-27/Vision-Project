@@ -85,6 +85,9 @@ def decision_step(Rover):
                 Rover.steer = -15
 
         elif Rover.mode[-1] == 'rock':
+           
+            if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
+               Rover.send_pickup = True
             # Steer torwards the sample
             mean = np.mean(Rover.samples_angles * 180 / np.pi)
             if not np.isnan(mean):
