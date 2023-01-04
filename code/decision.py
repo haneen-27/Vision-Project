@@ -94,7 +94,7 @@ def decision_step(Rover):
                 Rover.mode.pop() # no rock in sight anymore. Go back to previous state
 
             # if 20 sec passed gives up and goes back to previous mode
-            if Rover.total_time - Rover.rock_time > 10:
+            if Rover.total_time - Rover.rock_time > 20:
                 #Rover.mode.pop()  # returns to previous mode
                 Rover.mode.append('stuck')
 
