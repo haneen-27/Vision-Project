@@ -95,6 +95,8 @@ def perception_step(Rover):
         # le grid size el sqare meter 10x10 pixel 
         #dst_size used = 5 3ashan 2*dst_size on each side tb2a 10*10
 
+    #  dst_size = 5
+        # le grid size el sqare meter 8x8 pixel 
     dst_size = 4
 
         # Set a bottom offset : estimated 3ashan elrover is a bit infront of it 

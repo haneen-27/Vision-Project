@@ -41,10 +41,8 @@ class RoverState():
     def __init__(self):
         self.start_time = None # To record the start time of navigation
         self.total_time = None # To record total duration of naviagation
-
         self.stuck_time = 0 # To record moment that got stuck
         self.rock_time = 0 # To record moment that started to go for the near rock sample
-        
         self.img = None # Current camera image
         self.pos = None # Current position (x, y)
         self.yaw = None # Current yaw angle
@@ -69,7 +67,7 @@ class RoverState():
         #acceleration value increased so that it's better than the startup code 
         self.throttle_set = 0.5 # Throttle setting when accelerating
         self.brake_set = 10 # Brake setting when braking
-        # The stop_threshold and go_threshold fields below represent total count
+        # The stop_forward and go_forward fields below represent total count
         # of navigable terrain pixels.  This is a very crude form of knowing
         # when you can keep going and when you should stop.  Feel free to
         # get creative in adding new fields or modifying these!
@@ -77,8 +75,8 @@ class RoverState():
         #in the start up code the stop forward value was 50
         #by observing the simulator we found that it is better to increase the 
         # value of the threshold that intiates the stopping
-        self.stop_threshold =200 # Threshold to initiate stopping
-        self.go_threshold = 500 # Threshold to go forward again
+        self.stop_forward =200 # Threshold to initiate stopping
+        self.go_forward = 500 # Threshold to go forward again
 
         #speed in startup code was very slow so we increased it 
         #from 2 to 3 
