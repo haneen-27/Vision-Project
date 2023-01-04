@@ -60,16 +60,16 @@ class RoverState():
         # both variables used in to_polar_coords to get
         # rocks into a polar coordinate system
         #el hyb2a used fl descision 3ashan a control el steering bta3 el rover 
-        self.samples_angles = None  # Angles of rock sample pixels
-        self.samples_dists = None  # Distances of rock sample pixels
+        self.rock_angles = None  # Angles of rock sample pixels
+        self.rock_distances = None  # Distances of rock sample pixels
         
         self.ground_truth = ground_truth_3d # Ground truth worldmap
-        self.mode = ['forward'] # Current mode (can be forward or stop)
+        self.state = ['forward'] # Current state (can be forward or stop)
 
         #acceleration value increased so that it's better than the startup code 
         self.throttle_set = 0.5 # Throttle setting when accelerating
         self.brake_set = 10 # Brake setting when braking
-        # The stop_forward and go_forward fields below represent total count
+        # The stop_threshold and go_threshold fields below represent total count
         # of navigable terrain pixels.  This is a very crude form of knowing
         # when you can keep going and when you should stop.  Feel free to
         # get creative in adding new fields or modifying these!
@@ -77,15 +77,15 @@ class RoverState():
         #in the start up code the stop forward value was 50
         #by observing the simulator we found that it is better to increase the 
         # value of the threshold that intiates the stopping
-        self.stop_forward = 200 # Threshold to initiate stopping
-        self.go_forward = 550 # Threshold to go forward again
+        self.stop_threshold =200 # Threshold to initiate stopping
+        self.go_threshold = 500 # Threshold to go forward again
 
         #speed in startup code was very slow so we increased it 
         #from 2 to 3 
-        self.max_vel = 3 # Maximum velocity (meters/second)
+        self.max_vel = 4 # Maximum velocity (meters/second)
         # Image output from perception step
         # Update this image to display your intermediate analysis steps
-        # on screen in autonomous mode
+        # on screen in autonomous state
         self.vision_image = np.zeros((160, 320, 3), dtype=np.float) 
         # Worldmap
         # Update this image with the positions of navigable terrain

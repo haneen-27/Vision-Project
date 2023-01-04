@@ -20,26 +20,26 @@ def decision_step(Rover):
 
     # Check if we have vision data to make decisions with
     if Rover.nav_angles is not None:
-        # Check for Rover.mode status. I made Rover.mode a stack
-        if Rover.mode[-1] == 'forward':
+        # Check for Rover.state status. I made Rover.state a stack
+        if Rover.state[-1] == 'forward':
             # if sample rock on sight (in the left side only) and relatively close
-            if Rover.samples_angles is not None and np.mean(Rover.samples_angles) > -0.2 and np.min(Rover.samples_dists) < 50:
-                #Rover.steer = np.clip(np.mean(Rover.samples_angles * 180 / np.pi), -15, 15)
+            if Rover.rock_angles is not None and np.mean(Rover.rock_angles) > -0.2 and np.min(Rover.rock_distances) < 50:
+                #Rover.steer = np.clip(np.mean(Rover.rock_angles * 180 / np.pi), -15, 15)
                 Rover.rock_time = Rover.total_time
-                Rover.mode.append('rock')
+                Rover.state.append('rock')
 
             # Check the extent of navigable terrain
-            elif len(Rover.nav_angles) >= Rover.stop_forward:
-                # If mode is forward, navigable terrain looks good
+            elif len(Rover.nav_angles) >= Rover.stop_threshold:
+                # If state is forward, navigable terrain looks good
                 # Except for start, if stopped means stuck.
-                # Alternates between stuck and forward modes
+                # Alternates between stuck and forward states
                 if Rover.vel <= 0.1 and Rover.total_time - Rover.stuck_time > 4:
-                    # Set mode to "stuck" and hit the brakes!
+                    # Set state to "stuck" and hit the brakes!
                     Rover.throttle = 0
                     # Set brake to stored brake value
                     Rover.brake = Rover.brake_set
                     Rover.steer = 0
-                    Rover.mode.append('stuck')
+                    Rover.state.append('stuck')
                     Rover.stuck_time = Rover.total_time
                 # if velocity is below max, then throttle
                 elif Rover.vel < Rover.max_vel:
@@ -53,19 +53,19 @@ def decision_step(Rover):
                 # Hug left wall by setting the steer angle slightly to the left
                 Rover.steer = np.clip(np.mean((Rover.nav_angles+offset) * 180 / np.pi), -15, 15)
 
-            # If there's a lack of navigable terrain pixels then go to 'stop' mode
-            elif len(Rover.nav_angles) < Rover.stop_forward or Rover.vel <= 0:
-                #failed trial :elif len(Rover.nav_angles) < Rover.stop_forward and len(Rover.nav_angles) >100 or Rover.vel <= 0:
-                    # Set mode to "stop" and hit the brakes!
+            # If there's a lack of navigable terrain pixels then go to 'stop' state
+            elif len(Rover.nav_angles) < Rover.stop_threshold or Rover.vel <= 0:
+                #failed trial :elif len(Rover.nav_angles) < Rover.stop_threshold and len(Rover.nav_angles) >100 or Rover.vel <= 0:
+                    # Set state to "stop" and hit the brakes!
                     Rover.throttle = 0
                     # Set brake to stored brake value
                     Rover.brake = Rover.brake_set
                     Rover.steer = 0
-                    Rover.mode.append('stop')
+                    Rover.state.append('stop')
 
             # If we're already in "stuck". Stay here for 1 sec
-        elif Rover.mode[-1] == 'stuck':
-            # if 1 sec passed go back to previous mode
+        elif Rover.state[-1] == 'stuck':
+            # if 1 sec passed go back to previous state
             if Rover.total_time - Rover.stuck_time > 1:
                 # Set throttle back to stored value
                 Rover.throttle = Rover.throttle_set
@@ -74,7 +74,7 @@ def decision_step(Rover):
                 # Set steer to mean angle
                 # Hug left wall by setting the steer angle slightly to the left
                 Rover.steer = np.clip(np.mean((Rover.nav_angles+offset) * 180 / np.pi), -15, 15)
-                Rover.mode.pop() # returns to previous mode
+                Rover.state.pop() # returns to previous state
             # Now we're stopped and we have vision data to see if there's a path forward
             else:
                 Rover.throttle = 0
@@ -84,37 +84,37 @@ def decision_step(Rover):
                 # Since hugging left wall steering should be to the right:
                 Rover.steer = -15
 
-        elif Rover.mode[-1] == 'rock':
+        elif Rover.state[-1] == 'rock':
                           
             # Steer torwards the sample
-            mean = np.mean(Rover.samples_angles * 180 / np.pi)
+            mean = np.mean(Rover.rock_angles * 180 / np.pi)
             if not np.isnan(mean):
                 Rover.steer = np.clip(mean, -15, 15)
             else:
-                Rover.mode.pop() # no rock in sight anymore. Go back to previous state
+                Rover.state.pop() # no rock in sight anymore. Go back to previous state
 
-            # if 20 sec passed gives up and goes back to previous mode
-            if Rover.total_time - Rover.rock_time > 20:
-                #Rover.mode.pop()  # returns to previous mode
-                Rover.mode.append('stuck')
+            # if 20 sec passed gives up and goes back to previous state
+            if Rover.total_time - Rover.rock_time > 15:
+                #Rover.state.pop()  # returns to previous state
+                Rover.state.append('stuck')
 
             # if close to the sample stop
             if Rover.near_sample:
-                # Set mode to "stop" and hit the brakes!
+                # Set state to "stop" and hit the brakes!
                 Rover.throttle = 0
                 # Set brake to stored brake value
                 Rover.brake = Rover.brake_set
-                #Rover.steer = np.clip(np.mean(Rover.samples_angles * 180 / np.pi), -15, 15)
+                #Rover.steer = np.clip(np.mean(Rover.rock_angles * 180 / np.pi), -15, 15)
 
                
-            # if got stuck go to stuck mode
+            # if got stuck go to stuck state
             elif Rover.vel <= 0 and Rover.total_time - Rover.stuck_time > 5:
                 Rover.throttle = 0
                 # Set brake to stored brake value
                 Rover.brake = Rover.brake_set
                 #Rover.steer = 0
-                Rover.steer = np.clip(np.mean((Rover.nav_angles+offset) * 180 / np.pi), -15, 15)
-                #Rover.mode.append('stuck')
+                Rover.steer = np.clip(np.mean((Rover.rock_angles+offset) * 180 / np.pi), -15, 15)
+                #Rover.state.append('stuck')
                 #Rover.stuck_time = Rover.total_time
             else:
                 # Approach slowly
@@ -126,9 +126,9 @@ def decision_step(Rover):
                     Rover.throttle = 0
                     Rover.brake = Rover.brake_set
 
-        # If we're already in "stop" mode then make different decisions
-        elif Rover.mode[-1] == 'stop':
-            # If we're in stop mode but still moving keep braking
+        # If we're already in "stop" state then make different decisions
+        elif Rover.state[-1] == 'stop':
+            # If we're in stop state but still moving keep braking
             if Rover.vel > 0.2:
                 Rover.throttle = 0
                 Rover.brake = Rover.brake_set
@@ -136,7 +136,7 @@ def decision_step(Rover):
             # If we're not moving (vel < 0.2) then do something else
             elif Rover.vel <= 0.2:
                 # Now we're stopped and we have vision data to see if there's a path forward
-                if len(Rover.nav_angles) < Rover.go_forward:
+                if len(Rover.nav_angles) < Rover.go_threshold:
                     Rover.throttle = 0
                     # Release the brake to allow turning
                     Rover.brake = 0
@@ -144,7 +144,7 @@ def decision_step(Rover):
                     # Since hugging left wall steering should be to the right:
                     Rover.steer = -15
                 # If we're stopped but see sufficient navigable terrain in front then go!
-                if len(Rover.nav_angles) >= Rover.go_forward:
+                if len(Rover.nav_angles) >= Rover.go_threshold:
                     # Set throttle back to stored value
                     Rover.throttle = Rover.throttle_set
                     # Release the brake
@@ -153,7 +153,7 @@ def decision_step(Rover):
                     # Hug left wall by setting the steer angle slightly to the left
                     offset = 12
                     Rover.steer = np.clip(np.mean(Rover.nav_angles * 180 / np.pi) + offset, -15, 15)
-                    Rover.mode.pop()  # returns to previous mode
+                    Rover.state.pop()  # returns to previous state
 
     # Just to make the rover do something 
     # even if no modifications have been made to the code
