@@ -23,7 +23,7 @@ def decision_step(Rover):
         # Check for Rover.mode status. I made Rover.mode a stack
         if Rover.mode[-1] == 'forward':
             # if sample rock on sight (in the left side only) and relatively close
-            if Rover.samples_angles is not None and np.mean(Rover.samples_angles) > -0.2 and np.min(Rover.samples_dists) < 30:
+            if Rover.samples_angles is not None and np.mean(Rover.samples_angles) > -0.2 and np.min(Rover.samples_dists) < 50:
                 #Rover.steer = np.clip(np.mean(Rover.samples_angles * 180 / np.pi), -15, 15)
                 Rover.rock_time = Rover.total_time
                 Rover.mode.append('rock')
@@ -85,9 +85,7 @@ def decision_step(Rover):
                 Rover.steer = -15
 
         elif Rover.mode[-1] == 'rock':
-           
-            if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
-               Rover.send_pickup = True
+                          
             # Steer torwards the sample
             mean = np.mean(Rover.samples_angles * 180 / np.pi)
             if not np.isnan(mean):
@@ -96,8 +94,9 @@ def decision_step(Rover):
                 Rover.mode.pop() # no rock in sight anymore. Go back to previous state
 
             # if 20 sec passed gives up and goes back to previous mode
-            if Rover.total_time - Rover.rock_time > 40 :
-                Rover.mode.pop()  # returns to previous mode
+            if Rover.total_time - Rover.rock_time > 10:
+                #Rover.mode.pop()  # returns to previous mode
+                Rover.mode.append('stuck')
 
             # if close to the sample stop
             if Rover.near_sample:
@@ -105,18 +104,21 @@ def decision_step(Rover):
                 Rover.throttle = 0
                 # Set brake to stored brake value
                 Rover.brake = Rover.brake_set
+                #Rover.steer = np.clip(np.mean(Rover.samples_angles * 180 / np.pi), -15, 15)
 
+               
             # if got stuck go to stuck mode
-            elif Rover.vel <= 0 and Rover.total_time - Rover.stuck_time > 10:
+            elif Rover.vel <= 0 and Rover.total_time - Rover.stuck_time > 5:
                 Rover.throttle = 0
                 # Set brake to stored brake value
                 Rover.brake = Rover.brake_set
-                Rover.steer = 0
-                Rover.mode.append('stuck')
-                Rover.stuck_time = Rover.total_time
+                #Rover.steer = 0
+                Rover.steer = np.clip(np.mean((Rover.nav_angles+offset) * 180 / np.pi), -15, 15)
+                #Rover.mode.append('stuck')
+                #Rover.stuck_time = Rover.total_time
             else:
                 # Approach slowly
-                slow_speed = Rover.max_vel / 5
+                slow_speed = Rover.max_vel / 4
                 if Rover.vel < slow_speed:
                     Rover.throttle = 0.1
                     Rover.brake = 0

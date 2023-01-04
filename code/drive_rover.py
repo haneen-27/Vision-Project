@@ -77,12 +77,12 @@ class RoverState():
         #in the start up code the stop forward value was 50
         #by observing the simulator we found that it is better to increase the 
         # value of the threshold that intiates the stopping
-        self.stop_forward =200 # Threshold to initiate stopping
-        self.go_forward = 500 # Threshold to go forward again
+        self.stop_forward = 200 # Threshold to initiate stopping
+        self.go_forward = 550 # Threshold to go forward again
 
         #speed in startup code was very slow so we increased it 
         #from 2 to 3 
-        self.max_vel = 4 # Maximum velocity (meters/second)
+        self.max_vel = 3 # Maximum velocity (meters/second)
         # Image output from perception step
         # Update this image to display your intermediate analysis steps
         # on screen in autonomous mode
