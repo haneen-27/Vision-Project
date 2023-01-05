@@ -5,13 +5,29 @@ import numpy as np
 # commands based on the output of the perception_step() function
 def decision_step(Rover):
 
+    #to return to start position 
+    if Rover.samples_collected >= 5:
+
+           print("GO TO START")
+
+           dist_start = np.sqrt((Rover.pos[0] - Rover.start_pos[0])**2 + (Rover.pos[1] - Rover.start_pos[1])**2)
+           if dist_start < 10.0 :  
+                Rover.throttle = 0
+
+                Rover.brake = Rover.brake_set
+
+                print ("RETURNED AT START POSITION")
+
+                Rover.return_start_pos=True
+                return Rover
+
     # Implement conditionals to decide what to do given perception data
     # Here you're all set up with some basic functionality but you'll need to
     # improve on this decision tree to do a good job of navigating autonomously!
 
     # offset in rad used to hug the left wall.
     offset = 0
-    if Rover.total_time > 10:
+    if Rover.total_time > 15:
         offset = 0.8 * np.std(Rover.nav_angles)
 
     # Check if we have vision data to make decisions with
@@ -97,7 +113,7 @@ def decision_step(Rover):
 
             else:
                 # Approach slowly
-                slow_speed = Rover.max_vel / 4
+                slow_speed = Rover.max_vel / 3
                 if Rover.vel < slow_speed:
                     Rover.throttle = 0.1
                     Rover.brake = 0

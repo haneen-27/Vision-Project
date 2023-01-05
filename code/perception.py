@@ -1,5 +1,7 @@
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
+from tkinter import *
 
 # Identify pixels above the threshold
 # Threshold of RGB > 160 does a nice job of identifying ground pixels only
@@ -84,6 +86,13 @@ def impose_range(xpix, ypix, range=80):
 
 # Apply the above functions in succession and update the Rover state accordingly
 def perception_step(Rover):
+
+    #save start position of rover
+    if Rover.start_pos == None:
+
+        Rover.start_pos = Rover.pos
+
+
     # Perform perception steps to update Rover()
     # TODO: 
     # NOTE: camera image is coming to you in Rover.img
@@ -117,7 +126,7 @@ def perception_step(Rover):
     # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
     navigable = color_thresh(warped)
         # ignore half of the image as bad data
-    # navigable[0:int(navigable.shape[0]/2), :] = 0
+    #navigable[0:int(navigable.shape[0]/2), :] = 0
 
         # Obstacles are simply navigable inverted
         #np.ones_like : Return an array of ones with the same shape and type as a given array.
@@ -133,7 +142,7 @@ def perception_step(Rover):
     #hnshheel el taree2 mn el navigable
     obstacles = np.absolute((np.float32(navigable)-1) * mask)
         # ignore half of the image as bad data
-    # obstacles[0:int(obstacles.shape[0]/2),:] = 0
+    #obstacles[0:int(obstacles.shape[0]/2),:] = 0
 
         # identify the rock
         #the rock color falls around the Hue value of 24
@@ -218,4 +227,35 @@ def perception_step(Rover):
     dist, angles = to_polar_coords(xpix_rocks, ypix_rocks)
     Rover.rock_distances = dist
     Rover.rock_angles = angles
+
+    '''cv2.imshow("Rover Image", Rover.vision_image)
+    cv2.imshow("Rover Transform", warped)
+    cv2.imshow("Navigable Terrain", navigable*255)
+    cv2.imshow("Obstacles", obstacles*255)
+    cv2.imshow("Rocks", rock_samples*255)'''
+    '''
+    # declare the window
+    window = Tk()
+    # set window title
+    window.title("Vision Project - Debugging")
+    # set window width and height
+    window.configure(width=500, height=300)
+    # set window background color
+    window.configure(bg='lightgray')
+
+    plt.plot(xpix_navigable, ypix_navigable)
+    
+
+    fig = plt.figure(figsize=(12,9))
+    plt.subplot(221)
+    plt.imshow(img)
+    plt.subplot(222)
+    plt.imshow(warped)
+    plt.subplot(223)
+    plt.imshow(navigable*255)
+    plt.subplot(224)
+    plt.plot(obstacles)'''
+
+    #window.mainloop()
+
     return Rover
